@@ -1,79 +1,20 @@
 #include "io/framework.h"
 
-#include "app_config.h"
 #include "io/app_api.h"
-#include "pico/binary_info.h"
 #include "tusb.h"
 
-Framework* Framework::get(const char* banner,
+Framework& Framework::get(const char* banner,
                           const Console::Command* commands) {
   static auto framework = Framework{banner, commands};
-  return &framework;
+  return framework;
 }
 
 #include "class/cdc/cdc_device.h"
 
-#if 0
-// Invoked when received new data
-void tud_cdc_rx_cb(uint8_t itf) {
-  printf("tud_cdc_rx_cb(%d)\r\n", itf);
-  // auto* framework = Framework::get();
-  // framework->console().printf("tud_cdc_rx_cb(%d)\r\n", itf);
-}
-
-// Invoked when received `wanted_char`
-void tud_cdc_rx_wanted_cb(uint8_t itf, char wanted_char) {
-  printf("tud_cdc_rx_wanted_cb(%d)\r\n", itf);
-  // auto* framework = Framework::get();
-  // framework->console().printf("tud_cdc_rx_wanted_cb(%d)\r\n");
-}
-
-// Invoked when space becomes available in TX buffer
-void tud_cdc_tx_complete_cb(uint8_t itf) {
-  printf("tud_cdc_tx_complete_cb(%d)\r\n", itf);
-  // if(itf == Framework::API_USB_CH) {
-  // auto* framework = Framework::get();
-  // framework->console().printf("tud_cdc_tx_complete_cb(%d)\r\n");
-  // }
-}
-
-// Invoked when line state DTR & RTS are changed via SET_CONTROL_LINE_STATE
-void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts) {
-  printf("tud_cdc_line_state_cb(%d, %d, %d)\r\n", itf, dtr, rts);
-  // auto* framework = Framework::get();
-  // framework->console().printf("tud_cdc_line_state_cb(%d)\r\n");
-}
-
-// Invoked when line coding is change via SET_LINE_CODING
-void tud_cdc_line_coding_cb(uint8_t itf,
-                            cdc_line_coding_t const* p_line_coding) {
-  printf("tud_cdc_line_coding_cb(%d)\r\n", itf);
-  // auto* framework = Framework::get();
-  // framework->console().printf("tud_cdc_line_coding_cb(%d)\r\n");
-}
-
-// Invoked when received send break
-void tud_cdc_send_break_cb(uint8_t itf, uint16_t duration_ms) {
-  printf("tud_cdc_send_break_cb(%d)\r\n", itf);
-  // auto* framework = Framework::get();
-  // framework->console().printf("tud_cdc_send_break_cb(%d)\r\n");
-}
-#endif
-
 auto Framework::init() -> void {
-  // static uart_inst_t* uart_inst;
   if (app_) {
     app_->init();
   }
-
-#if 0
-  // stdio uart initialisation.
-  bi_decl(bi_2pins_with_func(UART_TX_PIN, UART_TX_PIN, GPIO_FUNC_UART));
-  uart_inst = uart_get_instance(UART_DEV);
-  stdio_uart_init_full(uart_inst, CFG_BOARD_UART_BAUDRATE, UART_TX_PIN,
-                       UART_RX_PIN);
-#endif
-
   tusb_init();
 }
 

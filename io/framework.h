@@ -6,7 +6,7 @@
 class AppApi;
 class Framework {
  public:
-  static Framework* get(const char* banner = nullptr,
+  static Framework& get(const char* banner = nullptr,
                         const Console::Command* commands = nullptr);
 
   Framework(const char* banner, const Console::Command* commands)
