@@ -1,2 +1,6 @@
 build
+plots
+watering-backups
+*.bak
 .cortex-debug*
+fp-info-cache

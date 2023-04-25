@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "watering")(type "KiCad")(uri "${KIPRJMOD}/watering.kicad_sym")(options "")(descr ""))
+)
