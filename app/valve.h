@@ -5,6 +5,7 @@
 
 class Valve {
  public:
+  Valve() : pin_{0}, next_{0} {}
   auto init(uint pin) -> void;
   auto periodic() -> void;
 

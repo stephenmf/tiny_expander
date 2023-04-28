@@ -27,7 +27,9 @@ class App : public AppApi {
   auto parse(char c) -> void;
 
   Framework& framework_;
-  Led led_;
+  Led led_red_;
+  Led led_grn_;
+  Led led_blu_;
   Valve valve0_;
   Valve valve1_;
 };

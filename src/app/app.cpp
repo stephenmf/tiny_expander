@@ -1,5 +1,7 @@
 #include "app/app.h"
 
+#include <array>
+
 #include "app_config.h"
 #include "hardware/watchdog.h"
 #include "io/framework.h"
@@ -121,21 +123,26 @@ struct Parser {
   enum class Command { NONE, STATUS, RESET, VALVE, LED };
 
   Parser()
-      : state{State::COMMAND}, command{Command::NONE}, target{0}, value{0} {}
+      : state{State::COMMAND}, command{Command::NONE}, target{0}, values{} {}
   auto reset() -> void;
   auto parse(char c) -> bool;
 
+  static constexpr uint8_t NUM_VALUES = 2;
   State state;
   Command command;
   uint8_t target;
-  uint16_t value;
+  uint8_t index;
+  std::array<uint16_t, NUM_VALUES> values;
 };
 
 auto Parser::reset() -> void {
   state = Parser::State::COMMAND;
   command = Parser::Command::NONE;
   target = 0;
-  value = 0;
+  index = 0;
+  for (auto &value : values) {
+    value = 0;
+  }
 }
 
 auto Parser::parse(char c) -> bool {
@@ -146,7 +153,7 @@ auto Parser::parse(char c) -> bool {
         return true;
       } else if (c == 'l' || c == 'L') {
         command = Command::LED;
-        state = State::NEXT_VALUE;
+        state = State::TARGET;
       } else if (c == 'r' || c == 'R') {
         command = Command::RESET;
         state = State::NEXT_VALUE;
@@ -173,7 +180,7 @@ auto Parser::parse(char c) -> bool {
       if (c == 27) {
         reset();
       } else if (c >= '0' && c <= '9') {
-        value = static_cast<uint16_t>(c - '0');
+        values[index] = static_cast<uint16_t>(c - '0');
         state = State::VALUE;
       }
       break;
@@ -181,7 +188,14 @@ auto Parser::parse(char c) -> bool {
       if (c == 27) {
         reset();
       } else if (c >= '0' && c <= '9') {
-        value = value * 10 + static_cast<uint16_t>(c - '0');
+        values[index] = values[index] * 10 + static_cast<uint16_t>(c - '0');
+      } else if (c == ',' || c == ':') {
+        ++index;
+        if (index < values.size()) {
+          state = State::NEXT_VALUE;
+        } else {
+          return true;
+        }
       } else {
         return true;
       }
@@ -195,24 +209,37 @@ static Parser parser{};
 }  // namespace
 
 App::App(Framework &framework)
-    : framework_{framework}, led_{}, valve0_{}, valve1_{} {
+    : framework_{framework},
+      led_red_{},
+      led_grn_{},
+      led_blu_{},
+      valve0_{},
+      valve1_{} {
   tx_index = 0;
   tx_sent = 0;
 }
 
 auto App::init() -> void {
-  bi_decl(bi_1pin_with_name(LED_PIN, "LED"));
-  led_.init(LED_PIN);
+  bi_decl(bi_1pin_with_name(LED_RED_PIN, "LED_RED"));
+  led_red_.init(LED_RED_PIN, LED_RED_ON);
 
-  bi_decl(bi_1pin_with_name(LED_PIN, "VALVE0"));
+  bi_decl(bi_1pin_with_name(LED_GRN_PIN, "LED_GRN"));
+  led_grn_.init(LED_GRN_PIN, LED_GRN_ON);
+
+  bi_decl(bi_1pin_with_name(LED_BLU_PIN, "LED_BLU"));
+  led_blu_.init(LED_BLU_PIN, LED_BLU_ON);
+
+  bi_decl(bi_1pin_with_name(VALVE0_PIN, "VALVE0"));
   valve0_.init(VALVE0_PIN);
 
-  bi_decl(bi_1pin_with_name(LED_PIN, "VALVE1"));
+  bi_decl(bi_1pin_with_name(VALVE1_PIN, "VALVE1"));
   valve1_.init(VALVE1_PIN);
 }
 
 auto App::periodic() -> void {
-  led_.periodic();
+  led_red_.periodic();
+  led_grn_.periodic();
+  led_blu_.periodic();
   valve0_.periodic();
   valve1_.periodic();
 }
@@ -222,33 +249,53 @@ auto App::perform_command() -> void {
   switch (parser.command) {
     case Parser::Command::STATUS:
       console.printf("Status\r\n");
-      respond("R{\"l\":%d,\"v0\":%d,\"v1\":%d}\r\n", led_.get(), valve0_.get(),
-              valve1_.get());
+      respond("R{\"l\":%d,%d,%d,\"v0\":%d,\"v1\":%d}\r\n", led_red_.get(),
+              led_grn_.get(), led_blu_.get(), valve0_.get(), valve1_.get());
       break;
     case Parser::Command::RESET:
-      console.printf("Reset value: %d\r\n", parser.value);
-      if (parser.value == 5511) {
+      console.printf("Reset value: %d\r\n", parser.values[0]);
+      if (parser.values[0] == 5511) {
         // Reset to allow loading new image as if BOOTSEL was being held down.
         reset_usb_boot(0, 0);
-      } else if (parser.value == 1033) {
+      } else if (parser.values[0] == 1033) {
         watchdog_reboot(0, 0, RESET_DELAY_MS);
       } else {
-        respond("Er%d\r\n", parser.value);
+        respond("Er%d\r\n", parser.values[0]);
       }
       break;
     case Parser::Command::LED:
-      console.printf("Led update value: %d\r\n", parser.value);
-      led_.config(parser.value, parser.value);
+      console.printf("Led update value: %d\r\n", parser.values[0]);
+      if (parser.target & 1) {
+        if (parser.index > 0) {
+          led_red_.config(parser.values[0], parser.values[1]);
+        } else {
+          led_red_.config(parser.values[0], parser.values[0]);
+        }
+      }
+      if (parser.target & 2) {
+        if (parser.index > 0) {
+          led_grn_.config(parser.values[0], parser.values[1]);
+        } else {
+          led_grn_.config(parser.values[0], parser.values[0]);
+        }
+      }
+      if (parser.target & 4) {
+        if (parser.index > 0) {
+          led_blu_.config(parser.values[0], parser.values[1]);
+        } else {
+          led_blu_.config(parser.values[0], parser.values[0]);
+        }
+      }
       respond("AL\r\n");
       break;
     case Parser::Command::VALVE:
       console.printf("Valve target: %d value: %d\r\n", parser.target,
-                     parser.value);
+                     parser.values[0]);
       if (parser.target == 0) {
-        valve0_.pulse(parser.value);
+        valve0_.pulse(parser.values[0]);
         respond("AV0\r\n");
       } else if (parser.target == 1) {
-        valve1_.pulse(parser.value);
+        valve1_.pulse(parser.values[0]);
         respond("AV1\r\n");
       } else {
         respond("Ev%d\r\n", parser.target);

@@ -2,14 +2,16 @@
 
 #include "pico/time.h"
 
-auto Led::init(uint pin) -> void {
+auto Led::init(uint pin, bool on) -> void {
   // Default LED gpio initialisation.
   pin_ = pin;
+  on_ = on;
   on_duration_ms_ = 0;
   off_duration_ms_ = 0;
   next_ = 0;
   gpio_init(pin_);
   gpio_set_dir(pin_, GPIO_OUT);
+  set(false);
 }
 
 auto Led::config(unsigned on_duration_ms, unsigned off_duration_ms) -> void {
