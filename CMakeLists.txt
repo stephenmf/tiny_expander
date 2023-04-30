@@ -53,8 +53,6 @@ target_sources(tiny_expander
     src/io/console.cpp
     src/io/usb_descriptors.cpp
     src/io/framework.cpp
-    src/io/led.cpp
-    src/app/valve.cpp
     src/app/app.cpp
     src/main.cpp
 )

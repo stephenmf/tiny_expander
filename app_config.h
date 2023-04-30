@@ -1,6 +1,8 @@
 #ifndef APP_CONFIG_H
 #define APP_CONFIG_H
 
+#include "pico/types.h"
+
 // LED defines.
 constexpr uint LED_RED_PIN = 18;
 constexpr bool LED_RED_ON = false;

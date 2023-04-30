@@ -2,7 +2,6 @@
 
 #include <array>
 
-#include "app_config.h"
 #include "hardware/watchdog.h"
 #include "io/framework.h"
 #include "pico/binary_info.h"
@@ -220,20 +219,20 @@ App::App(Framework &framework)
 }
 
 auto App::init() -> void {
-  bi_decl(bi_1pin_with_name(LED_RED_PIN, "LED_RED"));
-  led_red_.init(LED_RED_PIN, LED_RED_ON);
+  bi_decl(bi_1pin_with_name(led_red_.get_pin(), "LED_RED"));
+  led_red_.init(false);
 
-  bi_decl(bi_1pin_with_name(LED_GRN_PIN, "LED_GRN"));
-  led_grn_.init(LED_GRN_PIN, LED_GRN_ON);
+  bi_decl(bi_1pin_with_name(led_grn_.get_pin(), "LED_GRN"));
+  led_grn_.init(false);
 
-  bi_decl(bi_1pin_with_name(LED_BLU_PIN, "LED_BLU"));
-  led_blu_.init(LED_BLU_PIN, LED_BLU_ON);
+  bi_decl(bi_1pin_with_name(led_blu_.get_pin(), "LED_BLU"));
+  led_blu_.init(false);
 
-  bi_decl(bi_1pin_with_name(VALVE0_PIN, "VALVE0"));
-  valve0_.init(VALVE0_PIN);
+  bi_decl(bi_1pin_with_name(valve0_.get_pin(), "VALVE0"));
+  valve0_.init();
 
-  bi_decl(bi_1pin_with_name(VALVE1_PIN, "VALVE1"));
-  valve1_.init(VALVE1_PIN);
+  bi_decl(bi_1pin_with_name(valve0_.get_pin(), "VALVE1"));
+  valve1_.init();
 }
 
 auto App::periodic() -> void {

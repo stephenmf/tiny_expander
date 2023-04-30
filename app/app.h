@@ -4,6 +4,7 @@
 #include <cstdarg>
 
 #include "app/valve.h"
+#include "app_config.h"
 #include "io/app_api.h"
 #include "io/conversion.h"
 #include "io/led.h"
@@ -27,11 +28,11 @@ class App : public AppApi {
   auto parse(char c) -> void;
 
   Framework& framework_;
-  Led led_red_;
-  Led led_grn_;
-  Led led_blu_;
-  Valve valve0_;
-  Valve valve1_;
+  Led<LED_RED_PIN, LED_RED_ON> led_red_;
+  Led<LED_GRN_PIN, LED_GRN_ON> led_grn_;
+  Led<LED_BLU_PIN, LED_BLU_ON> led_blu_;
+  Valve<VALVE0_PIN, VALVE0_ON> valve0_;
+  Valve<VALVE1_PIN, VALVE1_ON> valve1_;
 };
 
 #endif  // APP_APP_H
