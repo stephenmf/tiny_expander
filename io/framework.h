@@ -11,7 +11,7 @@ class Framework {
 
   Framework(const char* banner, const Console::Command* commands)
       : app_{nullptr}, console_{banner, commands} {
-    puts("Framework constructed");
+    console_.printf("Framework constructed");
   }
 
   auto init() -> void;

@@ -2,6 +2,7 @@
 #define IO_CONSOLE_H
 
 #include <functional>
+#include <cstdarg>
 
 #include "io/conversion.h"
 
