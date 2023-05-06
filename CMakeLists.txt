@@ -45,6 +45,7 @@ target_sources(tiny_expander
     io/app_api.h
     io/framework.h
     io/led.h
+    io/freq.h
     app/valve.h
     app/app.h
     app_config.h
@@ -62,6 +63,7 @@ target_link_libraries(tiny_expander
     hardware_pio
     hardware_timer
     hardware_watchdog
+    hardware_pwm
     hardware_clocks
     tinyusb_device
 )

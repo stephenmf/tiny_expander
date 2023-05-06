@@ -7,6 +7,7 @@
 #include "app_config.h"
 #include "io/app_api.h"
 #include "io/conversion.h"
+#include "io/freq.h"
 #include "io/led.h"
 
 class Framework;
@@ -33,6 +34,7 @@ class App : public AppApi {
   Led<LED_BLU_PIN, LED_BLU_ON> led_blu_;
   Valve<VALVE0_PIN, VALVE0_ON> valve0_;
   Valve<VALVE1_PIN, VALVE1_ON> valve1_;
+  Freq<MOISTURE_PIN> moisture_;
 };
 
 #endif  // APP_APP_H

@@ -1,8 +1,8 @@
 #ifndef IO_CONSOLE_H
 #define IO_CONSOLE_H
 
-#include <functional>
 #include <cstdarg>
+#include <functional>
 
 #include "io/conversion.h"
 
