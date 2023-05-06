@@ -4,7 +4,7 @@
 #include "hardware/pwm.h"
 #include "pico/time.h"
 
-template <uint pin>
+template <uint pin, uint64_t sample_seconds>
 class Freq {
  public:
   Freq() : next_{0}, value_{0} {}
@@ -25,7 +25,7 @@ class Freq {
   auto periodic() {
     auto now = time_us_64();
     if (next_ < now) {
-      static constexpr uint64_t NEXT_INCREMENT = 10 * 1000UL * 1000UL;
+      static constexpr uint64_t NEXT_INCREMENT = sample_seconds * 1000UL * 1000UL;
       uint slice_num = pwm_gpio_to_slice_num(pin);
       pwm_set_enabled(slice_num, false);
       value_ = pwm_get_counter(slice_num);

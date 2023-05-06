@@ -234,8 +234,11 @@ auto App::init() -> void {
   bi_decl(bi_1pin_with_name(valve0_.get_pin(), "VALVE1"));
   valve1_.init();
 
-  bi_decl(bi_1pin_with_name(moisture_.get_pin(), "MOISTURE0"));
+  bi_decl(bi_1pin_with_name(moisture_.get_pin(), "MOISTURE"));
   moisture_.init();
+
+  bi_decl(bi_1pin_with_name(flow_.get_pin(), "FLOW"));
+  flow_.init();
 }
 
 auto App::periodic() -> void {
@@ -245,6 +248,7 @@ auto App::periodic() -> void {
   valve0_.periodic();
   valve1_.periodic();
   moisture_.periodic();
+  flow_.periodic();
 }
 
 auto App::perform_command() -> void {
@@ -252,9 +256,9 @@ auto App::perform_command() -> void {
   switch (parser.command) {
     case Parser::Command::STATUS:
       console.printf("Status\r\n");
-      respond("R{\"l\":%d,%d,%d,\"v0\":%d,\"v1\":%d,\"m0\":{\"u\":%d,\"v\":%d}}\r\n",
+      respond("R{\"l\":%d,%d,%d,\"v0\":%d,\"v1\":%d,\"m\":{\"u\":%d,\"v\":%d},\"f\":{\"u\":%d,\"v\":%d}}\r\n",
               led_red_.get(), led_grn_.get(), led_blu_.get(), valve0_.get(),
-              valve1_.get(), moisture_.updated(), moisture_.value());
+              valve1_.get(), moisture_.updated(), moisture_.value(), flow_.updated(), flow_.value());
       break;
     case Parser::Command::RESET:
       console.printf("Reset value: %d\r\n", parser.values[0]);

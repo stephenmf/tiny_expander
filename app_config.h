@@ -19,5 +19,6 @@ constexpr bool VALVE1_ON = true;
 
 // SENSOR defines
 constexpr uint MOISTURE_PIN = 27;
+constexpr uint FLOW_PIN = 29;
 
 #endif  // APP_CONFIG_H

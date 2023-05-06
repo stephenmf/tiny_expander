@@ -34,7 +34,8 @@ class App : public AppApi {
   Led<LED_BLU_PIN, LED_BLU_ON> led_blu_;
   Valve<VALVE0_PIN, VALVE0_ON> valve0_;
   Valve<VALVE1_PIN, VALVE1_ON> valve1_;
-  Freq<MOISTURE_PIN> moisture_;
+  Freq<MOISTURE_PIN, 10> moisture_;
+  Freq<FLOW_PIN, 2> flow_;
 };
 
 #endif  // APP_APP_H
