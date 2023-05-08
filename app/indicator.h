@@ -82,10 +82,14 @@ class Indicator {
     if (on) {
       switch (state_) {
         case State::DISCONNECTED:
-        case State::CONNECTED:
           led_red_.set(true);
           led_grn_.set(false);
           led_blu_.set(false);
+          break;
+        case State::CONNECTED:
+          led_red_.set(true);
+          led_grn_.set(true);
+          led_blu_.set(true);
           break;
         case State::VALVE1_ON:
           led_red_.set(false);
