@@ -11,6 +11,7 @@ namespace {
 
 using FORMAT = const char *;
 
+constexpr uint64_t TIMEOUT_DELAY = 10 * 1000UL * 1000UL;
 constexpr unsigned RESET_DELAY_MS = 100;
 
 constexpr size_t output_bufferSIZE = 2048;
@@ -119,7 +120,7 @@ auto respond(FORMAT format...) -> int {
 
 struct Parser {
   enum class State { COMMAND, TARGET, NEXT_VALUE, VALUE };
-  enum class Command { NONE, STATUS, RESET, VALVE, LED };
+  enum class Command { NONE, STATUS, RESET, VALVE };
 
   Parser()
       : state{State::COMMAND}, command{Command::NONE}, target{0}, values{} {}
@@ -150,13 +151,10 @@ auto Parser::parse(char c) -> bool {
       if (c == 's' || c == 'S') {
         command = Command::STATUS;
         return true;
-      } else if (c == 'l' || c == 'L') {
-        command = Command::LED;
-        state = State::TARGET;
       } else if (c == 'r' || c == 'R') {
         command = Command::RESET;
         state = State::NEXT_VALUE;
-      } else if (c == 'v' || c == 'v') {
+      } else if (c == 'v' || c == 'V') {
         command = Command::VALVE;
         state = State::TARGET;
       } else if (c > ' ') {
@@ -207,26 +205,16 @@ static Parser parser{};
 
 }  // namespace
 
-App::App(Framework &framework)
-    : framework_{framework},
-      led_red_{},
-      led_grn_{},
-      led_blu_{},
-      valve0_{},
-      valve1_{} {
+App::App(Framework &framework) : framework_{framework}, timeout_{0} {
   tx_index = 0;
   tx_sent = 0;
 }
 
 auto App::init() -> void {
-  bi_decl(bi_1pin_with_name(led_red_.get_pin(), "LED_RED"));
-  led_red_.init(false);
-
-  bi_decl(bi_1pin_with_name(led_grn_.get_pin(), "LED_GRN"));
-  led_grn_.init(false);
-
-  bi_decl(bi_1pin_with_name(led_blu_.get_pin(), "LED_BLU"));
-  led_blu_.init(false);
+  bi_decl(bi_1pin_with_name(indicator_.get_red_pin(), "LED_RED"));
+  bi_decl(bi_1pin_with_name(indicator_.get_grn_pin(), "LED_GRN"));
+  bi_decl(bi_1pin_with_name(indicator_.get_blu_pin(), "LED_BLU"));
+  indicator_.init(false);
 
   bi_decl(bi_1pin_with_name(valve0_.get_pin(), "VALVE0"));
   valve0_.init();
@@ -242,23 +230,34 @@ auto App::init() -> void {
 }
 
 auto App::periodic() -> void {
-  led_red_.periodic();
-  led_grn_.periodic();
-  led_blu_.periodic();
+  indicator_.periodic();
   valve0_.periodic();
   valve1_.periodic();
   moisture_.periodic();
   flow_.periodic();
+  auto valve0_on = valve0_.get();
+  auto valve1_on = valve1_.get();
+  if (valve0_on && valve1_on) {
+    indicator_.set_state(State::BOTH_VALVES_ON);
+  } else if (valve0_on) {
+    indicator_.set_state(State::VALVE0_ON);
+  } else if (valve1_on) {
+    indicator_.set_state(State::VALVE1_ON);
+  } else if (timeout_ < time_us_64()) {
+    indicator_.set_state(State::DISCONNECTED);
+  } else {
+    indicator_.set_state(State::CONNECTED);
+  }
 }
 
 auto App::perform_command() -> void {
   auto &console = framework_.console();
   switch (parser.command) {
     case Parser::Command::STATUS:
-      console.printf("Status\r\n");
-      respond("R{\"l\":%d,%d,%d,\"v0\":%d,\"v1\":%d,\"m\":{\"u\":%d,\"v\":%d},\"f\":{\"u\":%d,\"v\":%d}}\r\n",
-              led_red_.get(), led_grn_.get(), led_blu_.get(), valve0_.get(),
-              valve1_.get(), moisture_.updated(), moisture_.value(), flow_.updated(), flow_.value());
+      respond("R{\"l\":%d,\"v0\":%d,\"v1\":%d,\"m\":%c%d,\"f\":%c%d}\r\n",
+              indicator_.get_state(), valve0_.get(), valve1_.get(),
+              (moisture_.updated()) ? '+' : '-', moisture_.value(),
+              (flow_.updated()) ? '+' : '-', flow_.value());
       break;
     case Parser::Command::RESET:
       console.printf("Reset value: %d\r\n", parser.values[0]);
@@ -271,33 +270,8 @@ auto App::perform_command() -> void {
         respond("Er%d\r\n", parser.values[0]);
       }
       break;
-    case Parser::Command::LED:
-      console.printf("Led update value: %d\r\n", parser.values[0]);
-      if (parser.target & 1) {
-        if (parser.index > 0) {
-          led_red_.config(parser.values[0], parser.values[1]);
-        } else {
-          led_red_.config(parser.values[0], parser.values[0]);
-        }
-      }
-      if (parser.target & 2) {
-        if (parser.index > 0) {
-          led_grn_.config(parser.values[0], parser.values[1]);
-        } else {
-          led_grn_.config(parser.values[0], parser.values[0]);
-        }
-      }
-      if (parser.target & 4) {
-        if (parser.index > 0) {
-          led_blu_.config(parser.values[0], parser.values[1]);
-        } else {
-          led_blu_.config(parser.values[0], parser.values[0]);
-        }
-      }
-      respond("AL\r\n");
-      break;
     case Parser::Command::VALVE:
-      console.printf("Valve target: %d value: %d\r\n", parser.target,
+      console.printf("Valve target: %d pulse: %d\r\n", parser.target,
                      parser.values[0]);
       if (parser.target == 0) {
         valve0_.pulse(parser.values[0]);
@@ -313,6 +287,7 @@ auto App::perform_command() -> void {
 }
 
 auto App::parse(char c) -> void {
+  timeout_ = TIMEOUT_DELAY + time_us_64();
   if (parser.parse(c)) {
     perform_command();
     parser.reset();

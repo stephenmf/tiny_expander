@@ -7,7 +7,7 @@
 template <uint pin, uint64_t sample_seconds>
 class Freq {
  public:
-  Freq() : next_{0}, value_{0} {}
+  Freq() : next_{0}, value_{0}, updated_{false} {}
 
   constexpr auto get_pin() { return pin; }
 
@@ -25,24 +25,28 @@ class Freq {
   auto periodic() {
     auto now = time_us_64();
     if (next_ < now) {
-      static constexpr uint64_t NEXT_INCREMENT = sample_seconds * 1000UL * 1000UL;
+      static constexpr uint64_t NEXT_INCREMENT =
+          sample_seconds * 1000UL * 1000UL;
       uint slice_num = pwm_gpio_to_slice_num(pin);
       pwm_set_enabled(slice_num, false);
       value_ = pwm_get_counter(slice_num);
-      updated_ = 1;
+      updated_ = true;
       pwm_set_counter(slice_num, 0);
       pwm_set_enabled(slice_num, true);
       next_ = NEXT_INCREMENT + now;
     }
   }
 
-  auto value() { updated_ = 0; return value_; }
+  auto value() {
+    updated_ = false;
+    return value_;
+  }
   auto updated() { return updated_; }
 
  private:
   uint64_t next_;
   uint16_t value_;
-  uint8_t updated_;
+  bool updated_;
 };
 
 #endif  // IO_LED_H

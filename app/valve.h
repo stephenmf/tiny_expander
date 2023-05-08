@@ -34,8 +34,8 @@ class Valve {
       next_ = 0;
     } else {
       set(true);
-      next_ =
-          (static_cast<uint64_t>(on_duration_sec) * 1000000UL) + time_us_64();
+      next_ = (static_cast<uint64_t>(on_duration_sec) * 1000UL * 1000UL) +
+              time_us_64();
     }
   }
 
