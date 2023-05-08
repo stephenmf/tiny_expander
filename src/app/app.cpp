@@ -256,8 +256,8 @@ auto App::perform_command() -> void {
     case Parser::Command::STATUS:
       respond("R{\"l\":%d,\"v0\":%d,\"v1\":%d,\"m\":%c%d,\"f\":%c%d}\r\n",
               indicator_.get_state(), valve0_.get(), valve1_.get(),
-              (moisture_.updated()) ? '+' : '-', moisture_.value(),
-              (flow_.updated()) ? '+' : '-', flow_.value());
+              (moisture_.updated()) ? ' ' : '-', moisture_.value(),
+              (flow_.updated()) ? ' ' : '-', flow_.value());
       break;
     case Parser::Command::RESET:
       console.printf("Reset value: %d\r\n", parser.values[0]);
