@@ -266,14 +266,15 @@ auto App::perform_command() -> void {
   auto &console = framework_.console();
   switch (parser.command) {
     case Parser::Command::STATUS:
-      respond("R{\"l\":%d,\"v0\":%d,\"v1\":%d,\"m0\":%c%d,\"m1\":%c%d,\"m2\":%c%d,\"f0\":%c%d,\"f1\":%c%d}\r\n",
-              indicator_.get_state(), valve0_.get(), valve1_.get(),
-              (moisture0_.updated()) ? ' ' : '-', moisture0_.value(),
-              (moisture1_.updated()) ? ' ' : '-', moisture1_.value(),
-              (moisture2_.updated()) ? ' ' : '-', moisture2_.value(),
-              (flow0_.updated()) ? ' ' : '-', flow0_.value(),
-              (flow1_.updated()) ? ' ' : '-', flow1_.value()
-            );
+      respond(
+          "R{\"l\":%d,\"v0\":%d,\"v1\":%d,\"m0\":%c%d,\"m1\":%c%d,\"m2\":%c%d,"
+          "\"f0\":%c%d,\"f1\":%c%d}\r\n",
+          indicator_.get_state(), valve0_.get(), valve1_.get(),
+          (moisture0_.updated()) ? ' ' : '-', moisture0_.value(),
+          (moisture1_.updated()) ? ' ' : '-', moisture1_.value(),
+          (moisture2_.updated()) ? ' ' : '-', moisture2_.value(),
+          (flow0_.updated()) ? ' ' : '-', flow0_.value(),
+          (flow1_.updated()) ? ' ' : '-', flow1_.value());
       break;
     case Parser::Command::RESET:
       console.printf("Reset value: %d\r\n", parser.values[0]);

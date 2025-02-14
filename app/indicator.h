@@ -87,9 +87,9 @@ class Indicator {
           led_blu_.set(false);
           break;
         case State::CONNECTED:
-          led_red_.set(true);
-          led_grn_.set(true);
-          led_blu_.set(true);
+          led_red_.set(false);
+          led_grn_.set(false);
+          led_blu_.set(false);
           break;
         case State::VALVE1_ON:
           led_red_.set(false);

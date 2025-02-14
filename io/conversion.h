@@ -23,8 +23,8 @@ class Conversion {
     POINTER
   };
   static auto to_signed_int(const char *start, unsigned base = 10) -> int;
-  static auto to_unsigned_int(const char *start, unsigned base = 10)
-      -> unsigned;
+  static auto to_unsigned_int(const char *start,
+                              unsigned base = 10) -> unsigned;
   static auto to_double(const char *start) -> double;
 
   auto reset() -> void;
@@ -39,10 +39,10 @@ class Conversion {
   static constexpr size_t CONVERSION_BUFFER_SIZE = 120;
 
   auto from_int_(bool negative, unsigned long long value) -> const char *;
-  auto convert_lower_(size_t index, unsigned long long value, unsigned base)
-      -> int;
-  auto convert_upper_(size_t index, unsigned long long value, unsigned base)
-      -> int;
+  auto convert_lower_(size_t index, unsigned long long value,
+                      unsigned base) -> int;
+  auto convert_upper_(size_t index, unsigned long long value,
+                      unsigned base) -> int;
 
   unsigned left_justified_ : 1;
   unsigned output_sign_ : 1;
