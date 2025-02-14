@@ -32,8 +32,11 @@ class App : public AppApi {
   Indicator<LED_RED_PIN, LED_GRN_PIN, LED_BLU_PIN, LED_BLU_ON> indicator_;
   Valve<VALVE0_PIN, VALVE0_ON> valve0_;
   Valve<VALVE1_PIN, VALVE1_ON> valve1_;
-  Freq<MOISTURE_PIN, 10> moisture_;
-  Freq<FLOW_PIN, 2> flow_;
+  Freq<MOISTURE0_PIN, 10> moisture0_;
+  Freq<MOISTURE1_PIN, 10> moisture1_;
+  Freq<MOISTURE2_PIN, 10> moisture2_;
+  Freq<FLOW0_PIN, 2> flow0_;
+  Freq<FLOW1_PIN, 2> flow1_;
   uint64_t timeout_;
 };
 

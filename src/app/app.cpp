@@ -222,19 +222,31 @@ auto App::init() -> void {
   bi_decl(bi_1pin_with_name(valve0_.get_pin(), "VALVE1"));
   valve1_.init();
 
-  bi_decl(bi_1pin_with_name(moisture_.get_pin(), "MOISTURE"));
-  moisture_.init();
+  bi_decl(bi_1pin_with_name(moisture0_.get_pin(), "MOISTURE0"));
+  moisture0_.init();
 
-  bi_decl(bi_1pin_with_name(flow_.get_pin(), "FLOW"));
-  flow_.init();
+  bi_decl(bi_1pin_with_name(moisture1_.get_pin(), "MOISTURE1"));
+  moisture1_.init();
+
+  bi_decl(bi_1pin_with_name(moisture2_.get_pin(), "MOISTURE2"));
+  moisture2_.init();
+
+  bi_decl(bi_1pin_with_name(flow0_.get_pin(), "FLOW0"));
+  flow0_.init();
+
+  bi_decl(bi_1pin_with_name(flow1_.get_pin(), "FLOW1"));
+  flow1_.init();
 }
 
 auto App::periodic() -> void {
   indicator_.periodic();
   valve0_.periodic();
   valve1_.periodic();
-  moisture_.periodic();
-  flow_.periodic();
+  moisture0_.periodic();
+  moisture1_.periodic();
+  moisture2_.periodic();
+  flow0_.periodic();
+  flow1_.periodic();
   auto valve0_on = valve0_.get();
   auto valve1_on = valve1_.get();
   if (valve0_on && valve1_on) {
@@ -254,10 +266,14 @@ auto App::perform_command() -> void {
   auto &console = framework_.console();
   switch (parser.command) {
     case Parser::Command::STATUS:
-      respond("R{\"l\":%d,\"v0\":%d,\"v1\":%d,\"m\":%c%d,\"f\":%c%d}\r\n",
+      respond("R{\"l\":%d,\"v0\":%d,\"v1\":%d,\"m0\":%c%d,\"m1\":%c%d,\"m2\":%c%d,\"f0\":%c%d,\"f1\":%c%d}\r\n",
               indicator_.get_state(), valve0_.get(), valve1_.get(),
-              (moisture_.updated()) ? ' ' : '-', moisture_.value(),
-              (flow_.updated()) ? ' ' : '-', flow_.value());
+              (moisture0_.updated()) ? ' ' : '-', moisture0_.value(),
+              (moisture1_.updated()) ? ' ' : '-', moisture1_.value(),
+              (moisture2_.updated()) ? ' ' : '-', moisture2_.value(),
+              (flow0_.updated()) ? ' ' : '-', flow0_.value(),
+              (flow1_.updated()) ? ' ' : '-', flow1_.value()
+            );
       break;
     case Parser::Command::RESET:
       console.printf("Reset value: %d\r\n", parser.values[0]);

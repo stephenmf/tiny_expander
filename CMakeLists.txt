@@ -40,16 +40,25 @@ pico_sdk_init()
 add_executable(tiny_expander)
 
 pico_set_program_name(tiny_expander "tiny_expander")
-pico_set_program_version(tiny_expander "0.1")
-
-pico_enable_stdio_uart(tiny_expander 1)
+pico_set_program_version(tiny_expander "0.2")
 
 # Make sure TinyUSB can find tusb_config.h
 target_include_directories(tiny_expander PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
-# Add the standard library to the build
+# Add the SDK libraries to the build
 target_link_libraries(tiny_expander
-    pico_stdlib
+    hardware_gpio
+    hardware_divider
+    hardware_dma
+    hardware_timer
+    hardware_watchdog
+    hardware_pwm
+    hardware_clocks
+    pico_time
+    pico_util
+    pico_platform
+    pico_runtime
+    tinyusb_device
 )
 
 target_sources(tiny_expander
@@ -70,16 +79,6 @@ target_sources(tiny_expander
     src/io/framework.cpp
     src/app/app.cpp
     src/main.cpp
-)
-
-target_link_libraries(tiny_expander
-    hardware_dma
-    hardware_pio
-    hardware_timer
-    hardware_watchdog
-    hardware_pwm
-    hardware_clocks
-    tinyusb_device
 )
 
 pico_add_extra_outputs(tiny_expander)
