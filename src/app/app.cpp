@@ -228,9 +228,6 @@ auto App::init() -> void {
   bi_decl(bi_1pin_with_name(moisture1_.get_pin(), "MOISTURE1"));
   moisture1_.init();
 
-  bi_decl(bi_1pin_with_name(moisture2_.get_pin(), "MOISTURE2"));
-  moisture2_.init();
-
   bi_decl(bi_1pin_with_name(flow0_.get_pin(), "FLOW0"));
   flow0_.init();
 
@@ -244,7 +241,6 @@ auto App::periodic() -> void {
   valve1_.periodic();
   moisture0_.periodic();
   moisture1_.periodic();
-  moisture2_.periodic();
   flow0_.periodic();
   flow1_.periodic();
   auto valve0_on = valve0_.get();
@@ -272,9 +268,8 @@ auto App::perform_command() -> void {
           indicator_.get_state(), valve0_.get(), valve1_.get(),
           (moisture0_.updated()) ? ' ' : '-', moisture0_.value(),
           (moisture1_.updated()) ? ' ' : '-', moisture1_.value(),
-          (moisture2_.updated()) ? ' ' : '-', moisture2_.value(),
-          (flow0_.updated()) ? ' ' : '-', flow0_.value(),
-          (flow1_.updated()) ? ' ' : '-', flow1_.value());
+          (moisture1_.updated()) ? ' ' : '-', 0, (flow0_.updated()) ? ' ' : '-',
+          flow0_.value(), (flow1_.updated()) ? ' ' : '-', flow1_.value());
       break;
     case Parser::Command::RESET:
       console.printf("Reset value: %d\r\n", parser.values[0]);
