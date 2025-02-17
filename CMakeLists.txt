@@ -41,22 +41,18 @@ pico_set_program_description(tiny_expander "A pimoroni tiny2040 IO expander")
 pico_set_program_version(tiny_expander "0.2.0")
 pico_set_program_url(tiny_expander "github.com/stephenmf/tiny_expander")
 
+
 # Make sure TinyUSB can find tusb_config.h
 target_include_directories(tiny_expander PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 # Add the SDK libraries to the build
 target_link_libraries(tiny_expander
-    hardware_gpio
-    hardware_divider
+    pico_stdlib
     hardware_dma
     hardware_timer
     hardware_watchdog
     hardware_pwm
     hardware_clocks
-    pico_time
-    pico_util
-    pico_platform
-    pico_runtime
     tinyusb_device
 )
 
@@ -66,7 +62,6 @@ target_sources(tiny_expander
     io/console.h
     io/app_api.h
     io/framework.h
-    io/led.h
     io/freq.h
     app/valve.h
     app/app.h
