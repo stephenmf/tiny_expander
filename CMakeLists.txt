@@ -19,10 +19,6 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-# Initialise pico_sdk from installed location
-# (note this can come from environment, CMake cache etc)
-# set(PICO_SDK_PATH "/home/mark/develop/pico/pico-sdk")
-
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
@@ -32,15 +28,18 @@ set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 
 set(PICO_CXX_ENABLE_RTTI 1)
 
-# Initialise the Raspberry Pi Pico SDK
+# Initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
 add_executable(tiny_expander)
 
+# Add information accessible using picotool
 pico_set_program_name(tiny_expander "tiny_expander")
-pico_set_program_version(tiny_expander "0.2")
+pico_set_program_description(tiny_expander "A pimoroni tiny2040 IO expander")
+pico_set_program_version(tiny_expander "0.2.0")
+pico_set_program_url(tiny_expander "github.com/stephenmf/tiny_expander")
 
 # Make sure TinyUSB can find tusb_config.h
 target_include_directories(tiny_expander PUBLIC ${CMAKE_CURRENT_LIST_DIR})
