@@ -22,9 +22,9 @@ constexpr uint UART_TX_PIN = 4;
 constexpr uint UART_RX_PIN = 5;
 
 // SENSOR defines
-constexpr uint MOISTURE0_PIN = 1;
-constexpr uint MOISTURE1_PIN = 7;
-constexpr uint FLOW0_PIN = 27;
-constexpr uint FLOW1_PIN = 29;
+constexpr uint MOISTURE0_PIN = 27;
+constexpr uint MOISTURE1_PIN = 29;
+constexpr uint FLOW0_PIN = 1;
+constexpr uint FLOW1_PIN = 7;
 
 #endif  // APP_CONFIG_H
