@@ -3224,7 +3224,7 @@
 				)
 			)
 		)
-		(property "Footprint" "watering:Tiny2040"
+		(property "Footprint" "watering:TINY2040"
 			(at 99.06 69.85 0)
 			(effects
 				(font
